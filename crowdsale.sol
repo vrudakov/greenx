@@ -1,10 +1,10 @@
 /* 
-GreenX constructor
-transfer erc20
-transferFrom erc20
-approve erc20
-allowance erc20
-balanceOf erc20
+GreenX constructor +
+transfer erc20 +
+transferFrom erc20 +
+approve erc20 +
+allowance erc20 +
+balanceOf erc20 +
 () Payable function to distrubute token
 getCurrentState - Get current state of sales campaign
 issueTokenForPrivateInvestore - To distribure token to private investor 
@@ -39,12 +39,12 @@ contract accessManagment {
     }
     
     modifier onlyAdmin() {
-        require(msg.sender == admin);
+        require(msg.sender == admin || msg.sender == owner);
         _;
     }
     
     modifier onlyPortal() {
-        require(msg.sender == portal);
+        require(msg.sender == portal || msg.sender == admin || msg.sender == owner);
         _;
     }
     
@@ -53,12 +53,20 @@ contract accessManagment {
         _;
     }
     
+    function setAdmin(address _admin) public onlyOwner{
+        admin = _admin;
+    }
+    
+    function setPortal(address _portal) public onlyAdmin {
+        portal = _portal;
+    }
+    
 }
 
 contract ERC20 is accessManagment {
      using SafeMath for uint256;
      
-    mapping (address => uint256) private balances;
+    mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
     uint256 public _totalSupply;
   
@@ -90,7 +98,7 @@ contract ERC20 is accessManagment {
         return true;
     }
     
-     function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(address owner, address spender) public view returns (uint256) {
         return allowed[owner][spender];
     }
     
@@ -102,11 +110,37 @@ contract ERC20 is accessManagment {
     event Transfer(address from, address to, uint256 value);
 }
 
+
 contract GreenX is ERC20 {
 
+    uint state;
+    uint totalSupply = 500000000;
+    uint decimal = 18;
+    mapping (address => bool) public privateList;
+    uint public amount;
+    
+
     constructor () public {
-        owner = msg.sender;
-        
+       state = 1;
+        amount = 0;
+    }
+    
+    function () external payable {
+        amount = amount + msg.value;
+        address payable add = 0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB;
+        add.transfer(1 ether);
+    }
+
+    function addToPrivateList (address _investor) external onlyAdmin {
+        require(_investor != address(0));
+        privateList[_investor] = true;    
+    }
+    
+    function getCurrentState() public view returns (string memory) { /* надо допилить */
+        if (state == 0)
+            return ("Sale closed");
+        if (state == 1)
+            return ("Sale open");
     }
     
 }
