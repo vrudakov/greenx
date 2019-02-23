@@ -20,6 +20,7 @@ startPreSale
 endPreSale
 */
 pragma solidity >=0.4.22 <0.6.0;
+
 import "./safeMath.sol";
 
 contract accessManagment {
@@ -58,7 +59,7 @@ contract ERC20 is accessManagment {
      using SafeMath for uint256;
      
     mapping (address => uint256) private balances;
-    mapping (address => mapping (address => uint256)) public allowance;
+    mapping (address => mapping (address => uint256)) public allowed;
     uint256 public _totalSupply;
   
      
@@ -74,12 +75,30 @@ contract ERC20 is accessManagment {
     function transferFrom(address from, address to, uint amount ) public returns (bool) {
         require(to != address(0));
         require( balances[from] >= amount );
-        require( allowance[from][msg.sender] >= amount );
-        allowance[from][msg.sender] = allowance[from][msg.sender].sub(amount);
+        require( allowed[from][msg.sender] >= amount );
+        allowed[from][msg.sender] = allowed[from][msg.sender].sub(amount);
         
         
     }
     
+    function approve(address spender, uint256 value) public returns (bool) {
+        require(spender != address(0));
+        require(owner != address(0));
+        allowed[owner][spender] = value;
+        
+        emit Approval(owner, spender, value);
+        return true;
+    }
+    
+     function allowance(address owner, address spender) public view returns (uint256) {
+        return allowed[owner][spender];
+    }
+    
+      function balanceOf(address owner) public view returns (uint256) {
+        return balances[owner];
+    }
+    
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address from, address to, uint256 value);
 }
 
