@@ -64,7 +64,11 @@ contract accessManagment {
 }
 
 contract ERC20 is accessManagment {
-     using SafeMath for uint256;
+    using SafeMath for uint256;
+     
+    string private _name = "GreenX";
+    string private _symbol = "GRX";
+    uint8 private _decimals = 18;
      
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
@@ -117,23 +121,28 @@ contract GreenX is ERC20 {
     uint totalSupply = 500000000;
     uint decimal = 18;
     mapping (address => bool) public privateList;
-    uint public amount;
+    mapping (address => bool) public whiteList;
+    mapping (address => bool) public kyc;
+    
     
 
     constructor () public {
        state = 1;
-        amount = 0;
+    
     }
     
     function () external payable {
-        amount = amount + msg.value;
-        address payable add = 0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB;
-        add.transfer(1 ether);
+        
     }
 
     function addToPrivateList (address _investor) external onlyAdmin {
         require(_investor != address(0));
-        privateList[_investor] = true;    
+        privateList[_investor] = true;
+        whiteList[_investor] = true;
+    }
+    
+    function addToWhiteList (address _investor) external onlyPortal {
+        
     }
     
     function getCurrentState() public view returns (string memory) { /* надо допилить */
